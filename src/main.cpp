@@ -4,6 +4,7 @@
 
 #include <PinDef.h>
 #include <VariablesGlobal.h>
+#include <MenuStruct.h>
 #include <Encoder.h>
 #include <Menu.h>
 
