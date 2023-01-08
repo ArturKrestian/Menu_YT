@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+const int lcd_Rows=4;
+const int lcd_Columns=20;
+
 volatile int sec = 0;
 volatile int miliSec = 0;
 
