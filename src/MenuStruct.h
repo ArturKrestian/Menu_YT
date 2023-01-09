@@ -1,3 +1,5 @@
+const int menuStep=10;
+const String mainMenu="* Main Menu";
 const MenuItem  menuItem[]{
     {"Menu0", -1},        // 0
     {"Menu1", 10},        // 1
