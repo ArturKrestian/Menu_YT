@@ -5,7 +5,7 @@
 #include <PinDef.h>
 #include <VariablesGlobal.h>
 #include <MenuStruct.h>
-#include <C:\Users\Artur\Documents\PlatformIO\Projects\Encoder_YT\src\Encoder.h>
+#include <Encoder.h>
 #include <Menu.h>
 
 LiquidCrystal_I2C lcd(0x27, lcd_Columns, lcd_Rows);
