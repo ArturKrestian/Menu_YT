@@ -4,18 +4,11 @@ class Menu
 {
 private:
     int index = 0; // zmienna indeksu tablicy menuItem
+    int indexResult = -1;
     int lcdDisplayStart = 0;
     int lcdIndexStart = 0; // zmienna określa od którego indeksu tablicy menuItem ma być wyświetlana zawartość
                            // int submenuCountTmp = 0; // obecnagłębokość podmenu
-    // bool isHeadSelect = false;
 
-    MenuValue MenuWork()
-    {
-
-        MenuValue _menuValue;
-
-        return _menuValue;
-    }
     void GetEncoder()
     {
         extern Encoder encoder;
@@ -23,7 +16,7 @@ private:
 
         if (_encValue == -1)
         {
-            index = index - 1;
+            index--;
             if (index < lcdIndexStart)
             {
                 index = lcdIndexStart;
@@ -38,38 +31,53 @@ private:
                 Display();
             }
         }
-        if (encoder.ReadBtn() == 3)
+        if (encoder.ReadBtn() == 1)
         {
             MenuOk();
         }
     }
     void MenuOk()
     {
-        extern void PrintLCD(String _input, int _line = 0);
-
         if (menuItem[index].subMenu > 0)
         {
-            lcdIndexStart = menuItem[index].subMenu;
-            lcdDisplayStart = lcdIndexStart;
             if (menuItem[index].subMenu > index)
             {
+                lcdIndexStart = menuItem[index].subMenu;
                 index = lcdIndexStart + 1;
+                lcdDisplayStart = lcdIndexStart;
             }
             else
             {
-                 index = lcdIndexStart;
+                lcdIndexStart = menuItem[index].subMenu / menuStep;
+                lcdIndexStart *= menuStep;
+                index = menuItem[index].subMenu;
+                lcdDisplayStart = index - 1;
+                if (lcdDisplayStart < 0)
+                    lcdDisplayStart = 0;
             }
             Display();
-
-            //   String _dataStr = (String)index + " " + (String)lcdDisplayStart + " " + (String)lcdIndexStart;
-            //    PrintLCD(_dataStr, 3);
+        }
+        else
+        {
+            indexResult = index;
         }
     }
 
 public:
+    String FillSpace(String _dataStr)
+    {
+        for (int x = _dataStr.length(); x < lcd_Columns; x++)
+        {
+            _dataStr += " ";
+        }
+        if (_dataStr.length() > lcd_Columns)
+            _dataStr = _dataStr.substring(0, lcd_Columns);
+        return _dataStr;
+    }
+    String lcdValue[4];
+
     void Display()
     {
-        extern void PrintLCD(String _input, int _line = 0);
         String _dataStr = "";
 
         /*Wyliczenie indeksu startowego do wyświetlenia*/
@@ -85,35 +93,33 @@ public:
                 lcdDisplayStart = lcdIndexStart;
         }
 
-        _dataStr = (String)lcdDisplayStart;
-        PrintLCD(_dataStr);
         /* Generowanie kolejnych lini */
 
-        for (int x = 0; x < lcd_Rows - 1; x++)
+        for (int x = 0; x < lcd_Rows; x++)
         {
             _dataStr = " ";
 
             if (index == lcdDisplayStart + x)
                 _dataStr = ">";
-            if (menuItem[lcdDisplayStart + x].subMenu > 0)
+            if (menuItem[lcdDisplayStart + x].subMenu > 0 && lcdIndexStart != lcdDisplayStart + x)
             {
-                if (x != 0 || lcdIndexStart != lcdIndexStart)
-                    _dataStr += "+";
+                _dataStr += "+";
+            }
+            else
+            {
+                _dataStr += " ";
             }
 
-            _dataStr = _dataStr + menuItem[lcdDisplayStart + x].name + " " + String(lcdDisplayStart + x) + " " + String(index) + " " + String(menuItem[index].subMenu);
+            _dataStr += menuItem[lcdDisplayStart + x].name;
             if (menuItem[lcdDisplayStart + x].subMenu != -2)
-                PrintLCD(_dataStr, x);
+                lcdValue[x] = FillSpace(_dataStr);
         }
-        _dataStr = (String)index + " ";
-        _dataStr += (String)lcdDisplayStart + " ";
-        _dataStr += (String)lcdIndexStart + " ";
-        _dataStr += (String)menuItem[index].subMenu;
-        PrintLCD(_dataStr, 3);
     }
-    MenuValue Tick()
+    int Tick()
     {
         GetEncoder();
-        return MenuWork();
+        int _indexResult = indexResult;
+        indexResult = -1;
+        return _indexResult;
     }
 };
