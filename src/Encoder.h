@@ -55,6 +55,11 @@ public:
         enc = 0;
         return data;
     }
+
+    // return 0 przycisk cały czas puszczony
+    // return 2 przycisk cały czas naciśnięty
+    // return 1 naciśnięcie przycisku
+    // return 3 puszczenie przycisku
     int ReadBtn()
     {
         swValue = !digitalRead(encSw_P);
