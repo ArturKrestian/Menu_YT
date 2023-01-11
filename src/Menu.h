@@ -3,8 +3,11 @@
 class Menu
 {
 private:
-    int index = 0;         // zmienna indeksu tablicy menuItem
+    int index = 0; // zmienna indeksu tablicy menuItem
+    int lcdDisplayStart = 0;
     int lcdIndexStart = 0; // zmienna określa od którego indeksu tablicy menuItem ma być wyświetlana zawartość
+                           // int submenuCountTmp = 0; // obecnagłębokość podmenu
+    // bool isHeadSelect = false;
 
     MenuValue MenuWork()
     {
@@ -21,29 +24,45 @@ private:
         if (_encValue == -1)
         {
             index = index - 1;
-            if (index < 0)
-                index = 0;
+            if (index < lcdIndexStart)
+            {
+                index = lcdIndexStart;
+            }
             Display();
         }
         if (_encValue == 1)
         {
-            if (menuItem[index + 1].subMenu != -2)
+            if (menuItem[index + 1].subMenu != -2 && (index + 1) < lcdIndexStart + menuStep)
             {
                 index++;
                 Display();
             }
         }
-        if(encoder.ReadBtn()==3)
+        if (encoder.ReadBtn() == 3)
         {
             MenuOk();
         }
     }
-    void  MenuOk()
+    void MenuOk()
     {
-        if(menuItem[index].subMenu>0)
+        extern void PrintLCD(String _input, int _line = 0);
+
+        if (menuItem[index].subMenu > 0)
         {
-            index=menuItem[index].subMenu;
+            lcdIndexStart = menuItem[index].subMenu;
+            lcdDisplayStart = lcdIndexStart;
+            if (menuItem[index].subMenu > index)
+            {
+                index = lcdIndexStart + 1;
+            }
+            else
+            {
+                 index = lcdIndexStart;
+            }
             Display();
+
+            //   String _dataStr = (String)index + " " + (String)lcdDisplayStart + " " + (String)lcdIndexStart;
+            //    PrintLCD(_dataStr, 3);
         }
     }
 
@@ -52,49 +71,45 @@ public:
     {
         extern void PrintLCD(String _input, int _line = 0);
         String _dataStr = "";
-        int _menuLcdRows = lcd_Rows - 1;
 
         /*Wyliczenie indeksu startowego do wyświetlenia*/
 
-        if (lcdIndexStart + _menuLcdRows - 1 < index)
+        if (lcdDisplayStart + lcd_Rows - 1 < index)
         {
-            lcdIndexStart=index-(_menuLcdRows - 1);
+            lcdDisplayStart = index - (lcd_Rows - 1);
         }
-        if (lcdIndexStart > index)
+        if (lcdDisplayStart > index)
         {
-            lcdIndexStart--;
-            if (lcdIndexStart < 0)
-                lcdIndexStart = 0;
+            lcdDisplayStart--;
+            if (lcdDisplayStart < lcdIndexStart)
+                lcdDisplayStart = lcdIndexStart;
         }
 
-        /* Wyświetlenia nagłówka */
-
-        _dataStr = " ";
-        if (index < menuStep)
-        {
-            _dataStr = mainMenu;
-        }
-        PrintLCD(_dataStr, 0);
-
+        _dataStr = (String)lcdDisplayStart;
+        PrintLCD(_dataStr);
         /* Generowanie kolejnych lini */
 
-        for (int x = _menuLcdRows; x > 0; x--)
+        for (int x = 0; x < lcd_Rows - 1; x++)
         {
             _dataStr = " ";
-            if (index == lcdIndexStart + (x - 1))
-                _dataStr = ">";
 
-            if (menuItem[lcdIndexStart + x - 1].subMenu == -2)
+            if (index == lcdDisplayStart + x)
+                _dataStr = ">";
+            if (menuItem[lcdDisplayStart + x].subMenu > 0)
             {
-                PrintLCD(_dataStr, x);
+                if (x != 0 || lcdIndexStart != lcdIndexStart)
+                    _dataStr += "+";
             }
-            else
-            {
-                if(menuItem[lcdIndexStart + x - 1].subMenu>0) _dataStr+="+";
-                _dataStr = _dataStr + menuItem[lcdIndexStart + x - 1].name + " " + String(index) + " " + String(lcdIndexStart) + " " + String(lcdIndexStart + x - 1);
+
+            _dataStr = _dataStr + menuItem[lcdDisplayStart + x].name + " " + String(lcdDisplayStart + x) + " " + String(index) + " " + String(menuItem[index].subMenu);
+            if (menuItem[lcdDisplayStart + x].subMenu != -2)
                 PrintLCD(_dataStr, x);
-            }
         }
+        _dataStr = (String)index + " ";
+        _dataStr += (String)lcdDisplayStart + " ";
+        _dataStr += (String)lcdIndexStart + " ";
+        _dataStr += (String)menuItem[index].subMenu;
+        PrintLCD(_dataStr, 3);
     }
     MenuValue Tick()
     {
