@@ -27,6 +27,7 @@ void PrintLCD(String _input, int _line = 0)
   {
     _input = _input + " ";
   }
+  if(_input.length()>lcd_Columns)_input=_input.substring(0,lcd_Columns);
   lcd.setCursor(0, _line);
   lcd.print(_input);
 }
@@ -39,6 +40,7 @@ void setup()
   pinMode(encC_Pin, OUTPUT);
   pinMode(encBtn_Pin, INPUT_PULLUP);
 
+
   timer.setPrescaleFactor(3200);
   timer.setOverflow(10);
   timer.attachInterrupt(TimerInterrupt);
@@ -50,9 +52,15 @@ void setup()
 
   encoder.On();
   menu.Display();
+
+  //  lcd.setCursor(0, 0);
+//  lcd.print("_input");
+   // digitalWrite(ledPin,true);
 }
 
 void loop()
 {
+    //  lcd.setCursor(0, 0);
+ // lcd.print("_input");
    menu.Tick();
 }
