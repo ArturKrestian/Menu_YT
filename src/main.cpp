@@ -21,15 +21,32 @@ void TimerInterrupt()
   encoder.IrqEncoder();
 }
 
-void PrintLCD(String _input, int _line = 0)
+void PrintLCD(String _input, int _row = 0)
 {
-  for (int x = _input.length(); x < lcd_Columns; x++)
-  {
-    _input = _input + " ";
-  }
-  if(_input.length()>lcd_Columns)_input=_input.substring(0,lcd_Columns);
-  lcd.setCursor(0, _line);
+  _input = menu.FillSpace(_input);
+  lcd.setCursor(0, _row);
   lcd.print(_input);
+}
+
+void PrintLCDTick()
+{
+  if (isMenuLock == true)
+  {
+    isLcdRefresh = true;
+    return;
+  }
+  for (int x = 0; x < lcd_Rows; x++)
+  {
+
+    if (mainLcdValue[x] != menu.lcdValue[x] || isLcdRefresh == true)
+    {
+      mainLcdValue[x] = menu.lcdValue[x];
+      menu.lcdValue[x];
+      lcd.setCursor(0, x);
+      lcd.print(mainLcdValue[x]);
+    }
+  }
+  isLcdRefresh = false;
 }
 
 void setup()
@@ -39,7 +56,6 @@ void setup()
   pinMode(encB_Pin, INPUT_PULLUP);
   pinMode(encC_Pin, OUTPUT);
   pinMode(encBtn_Pin, INPUT_PULLUP);
-
 
   timer.setPrescaleFactor(3200);
   timer.setOverflow(10);
@@ -52,15 +68,65 @@ void setup()
 
   encoder.On();
   menu.Display();
+  // PrintLCD(menu.lcdValue[0]);
+  //  menu.lcdValue[0];
 
   //  lcd.setCursor(0, 0);
-//  lcd.print("_input");
-   // digitalWrite(ledPin,true);
+  //  lcd.print("_input");
+  // digitalWrite(ledPin,true);
+}
+
+void Demo1()
+{
+  int _enc = encoder.ReadEnc();
+  if (_enc != 0)
+  {
+    demoSpeed += _enc;
+    PrintLCD("", 0);
+    PrintLCD("Speed=" + (String)demoSpeed, 1);
+    PrintLCD("", 2);
+    PrintLCD("", 3);
+  }
+}
+
+void MenuDecode()
+{
+  switch (menuSelected)
+  {
+  case 0:
+  {
+    break;
+  }
+  case 6:
+  {
+    if (!isMenuLock)
+    {
+      isMenuLock = true;
+    }
+    else
+    {
+      Demo1();
+      if (encoder.ReadBtn() == 1)
+      {
+        isMenuLock = false;
+        menuSelected = -1;
+      }
+    }
+    break;
+  }
+  default:
+  {
+
+    break;
+  }
+  }
 }
 
 void loop()
 {
-    //  lcd.setCursor(0, 0);
- // lcd.print("_input");
-   menu.Tick();
+
+  if (isMenuLock == false)
+    menuSelected = menu.Tick();
+  MenuDecode();
+  PrintLCDTick();
 }
