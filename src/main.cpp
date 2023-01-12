@@ -41,7 +41,6 @@ void PrintLCDTick()
     if (mainLcdValue[x] != menu.lcdValue[x] || isLcdRefresh == true)
     {
       mainLcdValue[x] = menu.lcdValue[x];
-      menu.lcdValue[x];
       lcd.setCursor(0, x);
       lcd.print(mainLcdValue[x]);
     }
@@ -68,12 +67,7 @@ void setup()
 
   encoder.On();
   menu.Display();
-  // PrintLCD(menu.lcdValue[0]);
-  //  menu.lcdValue[0];
 
-  //  lcd.setCursor(0, 0);
-  //  lcd.print("_input");
-  // digitalWrite(ledPin,true);
 }
 
 void Demo1()
