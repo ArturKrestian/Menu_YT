@@ -7,7 +7,7 @@ private:
     int indexResult = -1;
     int lcdDisplayStart = 0;
     int lcdIndexStart = 0; // zmienna określa od którego indeksu tablicy menuItem ma być wyświetlana zawartość
-                          
+
     void GetEncoder()
     {
         extern Encoder encoder;
@@ -113,14 +113,7 @@ public:
             }
 
             _dataStr += menuItem[lcdDisplayStart + x].name;
-            if (menuItem[lcdDisplayStart + x].subMenu != -2)
-            {
-                lcdValue[x] = FillSpace(_dataStr);
-            }
-            else
-            {
-                lcdValue[x] = FillSpace(" ");
-            }
+            lcdValue[x] = FillSpace(_dataStr);
         }
     }
 
