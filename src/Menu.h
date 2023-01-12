@@ -3,12 +3,11 @@
 class Menu
 {
 private:
-    int index = 0; // zmienna indeksu tablicy menuItem
+    int index = 1; // zmienna indeksu tablicy menuItem
     int indexResult = -1;
     int lcdDisplayStart = 0;
     int lcdIndexStart = 0; // zmienna określa od którego indeksu tablicy menuItem ma być wyświetlana zawartość
-                           // int submenuCountTmp = 0; // obecnagłębokość podmenu
-
+                          
     void GetEncoder()
     {
         extern Encoder encoder;
@@ -36,6 +35,7 @@ private:
             MenuOk();
         }
     }
+
     void MenuOk()
     {
         if (menuItem[index].subMenu > 0)
@@ -48,6 +48,7 @@ private:
             }
             else
             {
+
                 lcdIndexStart = menuItem[index].subMenu / menuStep;
                 lcdIndexStart *= menuStep;
                 index = menuItem[index].subMenu;
@@ -74,7 +75,7 @@ public:
             _dataStr = _dataStr.substring(0, lcd_Columns);
         return _dataStr;
     }
-    String lcdValue[4];
+    String lcdValue[lcd_Rows];
 
     void Display()
     {
@@ -92,8 +93,9 @@ public:
             if (lcdDisplayStart < lcdIndexStart)
                 lcdDisplayStart = lcdIndexStart;
         }
-
-        /* Generowanie kolejnych lini */
+        if (index == 0)
+            index = 1;
+        /* Generowanie lini */
 
         for (int x = 0; x < lcd_Rows; x++)
         {
@@ -101,7 +103,7 @@ public:
 
             if (index == lcdDisplayStart + x)
                 _dataStr = ">";
-            if (menuItem[lcdDisplayStart + x].subMenu > 0 && lcdIndexStart != lcdDisplayStart + x)
+            if (menuItem[lcdDisplayStart + x].subMenu >= 0 && lcdIndexStart != lcdDisplayStart + x)
             {
                 _dataStr += "+";
             }
@@ -112,9 +114,16 @@ public:
 
             _dataStr += menuItem[lcdDisplayStart + x].name;
             if (menuItem[lcdDisplayStart + x].subMenu != -2)
+            {
                 lcdValue[x] = FillSpace(_dataStr);
+            }
+            else
+            {
+                lcdValue[x] = FillSpace(" ");
+            }
         }
     }
+
     int Tick()
     {
         GetEncoder();
